@@ -1,14 +1,23 @@
-﻿<div class="page-header">
-    <h1>Instructions</h1>
-</div>
-<p class="lead">To end up with the least number of pegs possible left on the board. Click any single peg to remove it from the board. Now you are read to start playing!</p>
-<div id="board-container" class="jumbotron">    
-    <div id="game-dashboard" class="text-center">
-        <h2>Ellapsed Time: <span class="label label-primary">11:34</span></h2>  
-        <h2>Peg Count: <span class="label label-primary">15</span></h2>    
+﻿<div id="board-container" class="jumbotron">    
+    <div id="game-dashboard">
+        <div class="pull-left">
+            <h2>Ellapsed Time: <span class="label label-primary" data-ng-init='ellapsedTime = "00:00:00"'>{{ellapsedTime}}</span></h2>  
+            <h2>Peg Count: <span class="label label-primary">{{pegCount}}</span></h2>    
+        </div>
+        <div class="pull-right">
+            <button class="btn btn-success btn-lg" data-ng-click="start()" data-ng-disabled="playing && !paused">Start Game!</button>
+            <button class="btn btn-danger btn-lg" data-ng-click="pause()" data-ng-disabled="paused">Pause</button>
+            <button class="btn btn-default btn-lg" data-ng-click="stop()" data-ng-disabled="!playing">Start Over</button>
+        </div>
+        <div class="clearfix"></div>
     </div>
     <img src="/Content/game/board.png" id="board" class="center-block" />
 </div>
+<div class="page-header">
+    <h1>Instructions</h1>
+</div>
+<p class="lead">To end up with the least number of pegs possible left on the board. Click any single peg to remove it from the board. Now you are read to start playing!</p>
+
 <p>To jump, first click the peg that is going to jump. Then, click the hole where the peg is going to land (by jumping over an adjacent peg).</p>
 <p>Bet you didn't know, the number of pegs you leave in the board indicates how smart you are. According to the in-game instructions, if you end up with:
     <ul>

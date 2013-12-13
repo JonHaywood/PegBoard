@@ -1,0 +1,26 @@
+﻿<div class="page-header">
+    <h1>Ready to play?</h1>
+</div>
+
+<p class="lead">Enter your nickname so your final score can be added to the leaderboard.</p>
+
+<form class="form-horizontal" role="form" data-ng-controller="RegisterController">
+  <div class="form-group">
+    <label for="nickname" class="col-sm-2 control-label">Nickname</label>
+    <div class="col-sm-4">
+      <input type="input" class="form-control" id="nickname" placeholder="Nickname">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="avatar" class="col-sm-2 control-label">Avatar</label>
+    <div class="col-sm-4">
+      <input type="input" class="form-control" id="avatar" placeholder="Avatar">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-primary" data-ng-click="register()">Save my scores and start game!</button>
+        <button type="button" class="btn btn-default" data-ng-click="skip()">Skip and start!</button>
+    </div>
+  </div>
+</form>
