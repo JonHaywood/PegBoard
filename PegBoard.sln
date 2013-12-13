@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PegBoard.Core", "Source\PegBoard.Core\PegBoard.Core.csproj", "{E5F7F89D-0A24-4E5B-BF03-F5C806F3CBBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{99768BE3-19FD-473C-A230-5CFA66867FB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PegBoard.Core.Tests", "Source\PegBoard.Core.Tests\PegBoard.Core.Tests.csproj", "{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PegBoard", "Source\PegBoard\PegBoard.csproj", "{66F32639-B047-41D3-B966-A9F57F1306C5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5F7F89D-0A24-4E5B-BF03-F5C806F3CBBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5F7F89D-0A24-4E5B-BF03-F5C806F3CBBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5F7F89D-0A24-4E5B-BF03-F5C806F3CBBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5F7F89D-0A24-4E5B-BF03-F5C806F3CBBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66F32639-B047-41D3-B966-A9F57F1306C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66F32639-B047-41D3-B966-A9F57F1306C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66F32639-B047-41D3-B966-A9F57F1306C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66F32639-B047-41D3-B966-A9F57F1306C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1CE1AB5B-DD6C-408F-B0D0-66CDA2AB7FE1} = {99768BE3-19FD-473C-A230-5CFA66867FB7}
+	EndGlobalSection
+EndGlobal
