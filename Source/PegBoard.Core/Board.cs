@@ -27,17 +27,19 @@ namespace PegBoard
         /// <summary>
         /// Initializes a new instance of the <see cref="Board"/> class.
         /// </summary>
-        /// <param name="rank">The rank. Must</param>
-        public Board(int rank)
+        /// <param name="rank">The number of pegs on one side of the triangle board.</param>
+        /// <param name="emptyPeg">The intial empty peg position. Is 0,0 by default.</param>
+        public Board(int rank, Coordinate emptyPeg = null)
         {
             Check.Require(rank > 3, "Rank must be greater than 3."); // must have a rank greater than 3 to have a playable game
             Rank = rank;
+            emptyPeg = emptyPeg ?? new Coordinate(0, 0);
             var v = new List<Vertex>();
             for (int i = 0; i < rank; i++)
             {
                 for (int x = 0, y = i; x <= i; x++, y--)
                 {
-                    bool hasPeg = (x == 0 && y == 0) ? false : true; // only the starting space has no peg
+                    bool hasPeg = (x == emptyPeg.X && y == emptyPeg.Y) ? false : true; // only the starting space has no peg
                     v.Add(new Vertex(x, y, hasPeg));
                 }
             }

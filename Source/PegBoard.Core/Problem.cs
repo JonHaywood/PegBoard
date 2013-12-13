@@ -11,9 +11,16 @@ namespace PegBoard
         private readonly int[] xs = { -1, /*-1,*/  0, +1, +1, /*+1,*/  0, -1 };
         private readonly int[] ys = { 0, /*-1,*/ -1, -1, 0, /*+1,*/ +1, +1 };
 
+        private readonly Coordinate emptyPeg;
+
+        public Problem(Coordinate emptyPeg = null)
+        {
+            this.emptyPeg = emptyPeg;
+        }
+
         public virtual Board GetInitialState()
         {
-            return new Board(5);
+            return new Board(5, emptyPeg);
         }
 
         public virtual IEnumerable<Assignment> GetDomains(Board board)
