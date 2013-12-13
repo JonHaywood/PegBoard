@@ -33,7 +33,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
     $scope.playing = false;
     $scope.paused = false;
     $scope.startTime = undefined;
-    $scope.prevTimeDiff = undefined;
+    $scope.prevTimeDiff = 0;
     $scope.ellapsedTime = undefined;
     $scope.timer = undefined;
     $scope.pegCount = 15;
@@ -112,6 +112,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
         
         // stop the timer
         clearInterval($scope.timer);
+        $scope.prevTimeDiff = 0;
         $scope.ellapsedTime = '00:00:00';        
         $scope.pegCount = 15;
         $scope.$apply();
