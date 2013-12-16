@@ -6,7 +6,7 @@ function NavController($scope, $location) {
 }
 
 // The main peg board app
-var pegBoardApp = angular.module('pegBoardApp', []);
+var pegBoardApp = angular.module('pegBoardApp', ['ngCookies']);
 
 pegBoardApp.config(function ($routeProvider) {
     $routeProvider
@@ -16,20 +16,52 @@ pegBoardApp.config(function ($routeProvider) {
         .otherwise({ redirectTo: '/' });
 });
 
-pegBoardApp.controller('RegisterController', function($scope, $location) {
-    $scope.registered = false;
-
-    $scope.register = function() {
-        $scope.registered = true;
-        $location.path('game');
+pegBoardApp.factory('userStore', function ($cookieStore) {
+    var currentUser = {
+        nickname: undefined,
+        avatarUrl: undefined,
+        registered: false
     };
-    $scope.skip = function() {
-        $scope.registered = true;
-        $location.path('game');
+
+    return {
+        get: function () {
+            var userFromCookie = $cookieStore.get('currentUser');
+            // if the current user isn't set but exists in the cookie then load it
+            if (!currentUser.registered && userFromCookie)
+                currentUser = userFromCookie;
+            return currentUser;
+        },
+        save: function (user) {
+            user.registered = true;
+            $cookieStore.put('currentUser', user);
+        }
     };
 });
 
-pegBoardApp.controller('GameController', function ($scope, $http, $location) {
+pegBoardApp.controller('RegisterController', function ($scope, $location, userStore) {
+    $scope.user = userStore.get();
+
+    $scope.register = function () {
+        userStore.save($scope.user);
+        $location.path('game');
+    };
+
+    // on first load check to see if we've registered before
+    // if so just go to the game
+    if ($scope.user.registered) {
+        $location.path('game');
+        return;
+    }
+});
+
+pegBoardApp.controller('GameController', function ($scope, $http, $location, userStore) {
+    // make sure we've gone through the register step
+    var user = userStore.get();
+    if (!user.registered) {
+        $location.path('/');
+        return;
+    }
+
     $scope.playing = false;
     $scope.paused = false;
     $scope.startTime = undefined;
@@ -37,6 +69,30 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
     $scope.ellapsedTime = undefined;
     $scope.timer = undefined;
     $scope.pegCount = 15;
+    $scope.coords = [
+        { boardX: 1, boardY: 0, screenX: 213, screenY: 33, hasPeg: true },
+        { boardX: 0, boardY: 1, screenX: 316, screenY: 33, hasPeg: true },
+        { boardX: 2, boardY: 0, screenX: 145, screenY: 100, hasPeg: true },
+        { boardX: 5, boardY: 0, screenX: 58, screenY: 260, hasPeg: true }
+    ];
+
+    function placePegs() {        
+        $.each($scope.coords, function (index, coord) {
+            var id = 'coord_' + coord.boardX + '_' + coord.boardY;
+            var coordExists = !!($(id).length);
+
+            // if this peg hasn't been created yet then build it and add it to the DOM
+            if (!coordExists) {                
+                $('<div />', { 'class': 'coord', id: id }).css({ top: coord.screenY, left: coord.screenX }).appendTo("#coords");
+            }
+
+            var $coord = $('#' + id);            
+            if (coord.hasPeg)
+                $coord.addClass('hasPeg');
+            else
+                $coord.removeClass('hasPeg');
+        });
+    }
     
     // see http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
     function pad(n, width, z) {
@@ -84,7 +140,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
             timeStr = days + " days, " + timeStr;
 
         return timeStr;
-    }    
+    }        
 
     // start the game!
     $scope.start = function () {
@@ -99,8 +155,9 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
         }, 1000);       
     };
 
+    // pause the game
     $scope.pause = function () {
-        $scope.prevTimeDiff = new Date() - $scope.startTime;
+        $scope.prevTimeDiff += new Date() - $scope.startTime;        
         $scope.paused = true;
         clearInterval($scope.timer);
     };
@@ -114,7 +171,8 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location) {
         clearInterval($scope.timer);
         $scope.prevTimeDiff = 0;
         $scope.ellapsedTime = '00:00:00';        
-        $scope.pegCount = 15;
-        $scope.$apply();
+        $scope.pegCount = 15;        
     };
+
+    placePegs();
 });

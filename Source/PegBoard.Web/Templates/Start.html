@@ -4,23 +4,16 @@
 
 <p class="lead">Enter your nickname so your final score can be added to the leaderboard.</p>
 
-<form class="form-horizontal" role="form" data-ng-controller="RegisterController">
+<form name="frmRegister" class="form-horizontal" role="form" data-ng-controller="RegisterController">
   <div class="form-group">
     <label for="nickname" class="col-sm-2 control-label">Nickname</label>
     <div class="col-sm-4">
-      <input type="input" class="form-control" id="nickname" placeholder="Nickname">
+      <input type="input" class="form-control" id="nickname" placeholder="Nickname" ng-model="user.nickname" required />        
     </div>
-  </div>
-  <div class="form-group">
-    <label for="avatar" class="col-sm-2 control-label">Avatar</label>
-    <div class="col-sm-4">
-      <input type="input" class="form-control" id="avatar" placeholder="Avatar">
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-        <button type="button" class="btn btn-primary" data-ng-click="register()">Save my scores and start game!</button>
-        <button type="button" class="btn btn-default" data-ng-click="skip()">Skip and start!</button>
-    </div>
+  </div>  
+  <div class="form-group">   
+      <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" id="register" class="btn btn-success btn-lg" ng-disabled="!frmRegister.$valid" data-ng-click="register()">Start Playing!</button>      
+      </div>      
   </div>
 </form>
