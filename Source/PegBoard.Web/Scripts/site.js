@@ -70,10 +70,20 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     $scope.timer = undefined;
     $scope.pegCount = 15;
     $scope.coords = [
-        { boardX: 1, boardY: 0, screenX: 213, screenY: 33, hasPeg: true },
-        { boardX: 0, boardY: 1, screenX: 316, screenY: 33, hasPeg: true },
-        { boardX: 2, boardY: 0, screenX: 145, screenY: 100, hasPeg: true },
-        { boardX: 5, boardY: 0, screenX: 58, screenY: 260, hasPeg: true }
+        { boardX: 1, boardY: 0, screenX: 223, screenY: 30, hasPeg: true },
+        { boardX: 0, boardY: 1, screenX: 322, screenY: 32, hasPeg: true },
+        { boardX: 2, boardY: 0, screenX: 165, screenY: 105, hasPeg: true },
+        { boardX: 2, boardY: 1, screenX: 265, screenY: 105, hasPeg: true },
+        { boardX: 2, boardY: 2, screenX: 370, screenY: 105, hasPeg: true },
+        { boardX: 3, boardY: 0, screenX: 110, screenY: 183, hasPeg: true },
+        { boardX: 3, boardY: 1, screenX: 217, screenY: 183, hasPeg: true },
+        { boardX: 3, boardY: 2, screenX: 325, screenY: 183, hasPeg: true },
+        { boardX: 3, boardY: 3, screenX: 425, screenY: 183, hasPeg: true },
+        { boardX: 4, boardY: 0, screenX: 58, screenY: 260, hasPeg: true },
+        { boardX: 4, boardY: 1, screenX: 165, screenY: 260, hasPeg: true },
+        { boardX: 4, boardY: 2, screenX: 268, screenY: 262, hasPeg: true },
+        { boardX: 4, boardY: 3, screenX: 375, screenY: 265, hasPeg: true },
+        { boardX: 4, boardY: 4, screenX: 480, screenY: 265, hasPeg: true }
     ];
 
     function placePegs() {        
@@ -84,6 +94,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
             // if this peg hasn't been created yet then build it and add it to the DOM
             if (!coordExists) {                
                 $('<div />', { 'class': 'coord', id: id }).css({ top: coord.screenY, left: coord.screenX }).appendTo("#coords");
+                $('#' + id).draggable({ containment: '#board-container' });
             }
 
             var $coord = $('#' + id);            
