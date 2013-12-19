@@ -94,7 +94,19 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
             // if this peg hasn't been created yet then build it and add it to the DOM
             if (!coordExists) {                
                 $('<div />', { 'class': 'coord', id: id }).css({ top: coord.screenY, left: coord.screenX }).appendTo("#coords");
-                $('#' + id).draggable({ containment: '#board-container' });
+                $('#' + id).draggable({
+                    containment: '#board-container',
+                    cursor: "move",                    
+                    helper: function (event) {
+                        return $("<img src='/Content/game/peg-full.png' />");
+                    },
+                    start: function (event, ui) {
+                        $(this).hide();
+                    },
+                    stop: function (event, ui) {
+                        $(this).show();
+                    }
+                });
             }
 
             var $coord = $('#' + id);            
