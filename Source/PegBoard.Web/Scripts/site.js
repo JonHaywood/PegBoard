@@ -70,12 +70,13 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     $scope.timer = undefined;
     $scope.pegCount = 15;
     $scope.coords = [
+        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: true },
         { boardX: 1, boardY: 0, screenX: 223, screenY: 30, hasPeg: true },
         { boardX: 0, boardY: 1, screenX: 322, screenY: 32, hasPeg: true },
         { boardX: 2, boardY: 0, screenX: 165, screenY: 105, hasPeg: true },
         { boardX: 2, boardY: 1, screenX: 265, screenY: 105, hasPeg: true },
         { boardX: 2, boardY: 2, screenX: 370, screenY: 105, hasPeg: true },
-        { boardX: 3, boardY: 0, screenX: 110, screenY: 183, hasPeg: true },
+        { boardX: 3, boardY: 0, screenX: 110, screenY: 183, hasPeg: false },
         { boardX: 3, boardY: 1, screenX: 217, screenY: 183, hasPeg: true },
         { boardX: 3, boardY: 2, screenX: 325, screenY: 183, hasPeg: true },
         { boardX: 3, boardY: 3, screenX: 425, screenY: 183, hasPeg: true },
@@ -86,35 +87,97 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         { boardX: 4, boardY: 4, screenX: 480, screenY: 265, hasPeg: true }
     ];
 
+    function getPeg(x, y) {
+        var pegs = $.grep($scope.coords, function (coord, i) { return (coord.boardX == x && coord.boardY == y); });
+        return pegs.pop();
+    }
+
     function placePegs() {        
         $.each($scope.coords, function (index, coord) {
             var id = 'coord_' + coord.boardX + '_' + coord.boardY;
-            var coordExists = !!($(id).length);
+            var $coord = $('#' + id);
+            var coordExists = !!($coord.length);
 
             // if this peg hasn't been created yet then build it and add it to the DOM
-            if (!coordExists) {                
-                $('<div />', { 'class': 'coord', id: id }).css({ top: coord.screenY, left: coord.screenX }).appendTo("#coords");
-                $('#' + id).draggable({
-                    containment: '#board-container',
-                    cursor: "move",                    
-                    helper: function (event) {
-                        return $("<img src='/Content/game/peg-full.png' />");
-                    },
-                    start: function (event, ui) {
-                        $(this).hide();
-                    },
-                    stop: function (event, ui) {
-                        $(this).show();
-                    }
-                });
-            }
-
-            var $coord = $('#' + id);            
+            if (!coordExists)
+                $coord = createPegElement(coord, id);
+            
+            // set the correct class if the coord has a peg or not
             if (coord.hasPeg)
                 $coord.addClass('hasPeg');
             else
                 $coord.removeClass('hasPeg');
         });
+    }
+
+    function removeHighlights() {
+        $('.peg-highlight').removeClass('peg-highlight');
+    }
+    
+    function createPegElement(coord, id) {
+        var droppables = [];
+
+        // create the peg element and append it to the dom
+        $('<div />', { 'class': 'coord', id: id }).css({ top: coord.screenY, left: coord.screenX }).appendTo("#coords");
+
+        // get a reference to the element and set up events on it
+        $el = $('#' + id);
+        $el.data('x', coord.boardX);
+        $el.data('y', coord.boardY);
+        $el.draggable({
+            containment: '#board-container',
+            cursor: "move",
+            helper: function (event) {
+                return $("<img src='/Content/game/peg-full.png' />");
+            },
+            start: function (event, ui) {
+                // hide the original position of peg being dragged
+                //$(this).hide();
+                coord.el.hide();
+
+                // enable droppable for empty spaces
+                var openCoords = $.grep($scope.coords, function (coord, i) { return !coord.hasPeg; });
+                $.each(openCoords, function (index, coord) {
+                    coord.el.addClass('peg-highlight').droppable({
+                        //accept: function (el) {
+                        //    debugger;
+                        //    /* This is a filter function, you can perform logic here 
+                        //       depending on the element being filtered: */
+                        //    return el.hasClass('peg-highlight');
+                        //},
+                        // occurs when the peg is dropped successfully
+                        drop: function (event, ui) {                                                        
+                            coord.hasPeg = true;                            
+                            removeHighlights();
+                        }
+                    });
+                });
+            },
+            stop: function (event, ui) {
+
+            },
+            revert: function (droppableObj) {                
+                // see http://stackoverflow.com/questions/1853230/jquery-ui-draggable-event-status-on-revert
+                // will be false if not placed on a droppable
+                if (droppableObj === false) {                    
+                    coord.el.show();
+                    removeHighlights();
+                    return true;
+                } else {                    
+                    coord.hasPeg = false;
+                    placePegs();
+                    coord.el.show();
+
+                    //return false so that the .myselector object does not revert
+                    return false;
+                }
+            }
+        });
+
+        // save the element in the coord itself
+        coord.el = $el;
+
+        return $el;
     }
     
     // see http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript

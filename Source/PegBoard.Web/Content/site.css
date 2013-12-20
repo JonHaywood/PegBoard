@@ -47,6 +47,7 @@ body {
     position: relative;
     width: 600px;
     padding-bottom: 50px; /* room for controls at bottom */
+    padding-top: 50px; /* room for pin at top */
 }
 
 #pause-screen {
@@ -97,4 +98,9 @@ body {
 }
 .coord.hasPeg {
     background: url(game/peg.png);
+}
+.peg-highlight {
+    border: solid 2px yellow;
+   -moz-box-shadow: inset 0 0 8px rgba(0,0,0, 0.25);
+   -webkit-box-shadow: inset 0 0 8px rgba(0,0,0, 0.25);
 }
