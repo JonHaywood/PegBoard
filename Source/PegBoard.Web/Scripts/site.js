@@ -111,7 +111,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     }
 
     function removeHighlights() {
-        $('.peg-highlight').removeClass('peg-highlight');
+        $('.peg-highlight').removeClass('peg-highlight').droppable('disable');
     }
     
     function createPegElement(coord, id) {
