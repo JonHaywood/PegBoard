@@ -38,15 +38,15 @@ pegBoardApp.factory('userStore', function ($cookieStore) {
     };
 });
 
-pegBoardApp.factory('boardService', function () {    
+pegBoardApp.factory('boardService', function ($rootScope) {    
     var coords = [
-        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: true },
+        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: false },
         { boardX: 1, boardY: 0, screenX: 223, screenY: 30, hasPeg: true },
         { boardX: 0, boardY: 1, screenX: 322, screenY: 32, hasPeg: true },
         { boardX: 2, boardY: 0, screenX: 165, screenY: 105, hasPeg: true },
         { boardX: 1, boardY: 1, screenX: 265, screenY: 105, hasPeg: true },
         { boardX: 0, boardY: 2, screenX: 370, screenY: 105, hasPeg: true },
-        { boardX: 3, boardY: 0, screenX: 110, screenY: 183, hasPeg: false },
+        { boardX: 3, boardY: 0, screenX: 110, screenY: 183, hasPeg: true },
         { boardX: 2, boardY: 1, screenX: 217, screenY: 183, hasPeg: true },
         { boardX: 1, boardY: 2, screenX: 325, screenY: 183, hasPeg: true },
         { boardX: 0, boardY: 3, screenX: 425, screenY: 183, hasPeg: true },
@@ -58,8 +58,7 @@ pegBoardApp.factory('boardService', function () {
     ];
     var showCoords = false;
     var xs = [ -1, -1,  0,  1, 1, 1, 0, -1 ];
-    var ys = [  0, -1, -1, -1, 0, 1, 1,  1 ];
-    var pegCount = coords.length;
+    var ys = [  0, -1, -1, -1, 0, 1, 1,  1 ];    
 
     return {
         getPeg: function (x, y) {
@@ -143,8 +142,8 @@ pegBoardApp.factory('boardService', function () {
                             // occurs when the peg is dropped successfully
                             drop: function (event, ui) {
                                 self.getPeg(jumped.x, jumped.y).hasPeg = false; // set jumped peg to false
-                                coord.hasPeg = true; // set where peg jumps to as true
-                                self.removeHighlights();
+                                coord.hasPeg = true;                            // set where peg jumps to as true                                
+                                self.removeHighlights();                                
                             }
                         });
                     });
@@ -160,9 +159,16 @@ pegBoardApp.factory('boardService', function () {
                         self.removeHighlights();
                         return true;
                     } else {
-                        coord.hasPeg = false;
-                        self.placePegs();
-                        coord.el.show();
+                        coord.hasPeg = false; // set where the peg jumped from as false
+                        self.placePegs();     // draw pegs on the screen
+                        coord.el.show();      // reshow the previously hidden div (since it may have a peg)
+                        $rootScope.$apply();  // update the root scope to notify controllers/views of a change
+
+                        // when the game is over notify watchers
+                        if (self.isGameOver()) {
+                            $rootScope.$apply();
+                            $('#game-over-screen').fadeIn('slow');
+                        }
 
                         //return false so that the .myselector object does not revert
                         return false;
@@ -188,8 +194,7 @@ pegBoardApp.factory('boardService', function () {
             for (var i = 0; i < xs.length; i++) {
                 var jumped = { x: coord.boardX + (xs[i] * 1), y: coord.boardY + (ys[i] * 1) };
                 var target = { x: coord.boardX + (xs[i] * 2), y: coord.boardY + (ys[i] * 2) };
-
-                console.log('jumped:', jumped, 'target:', target);
+                //console.log('jumped:', jumped, 'target:', target);
                 
                 if (self.hasCoordinate(jumped) &&
                     self.hasCoordinate(target) &&
@@ -203,6 +208,20 @@ pegBoardApp.factory('boardService', function () {
             }
 
             return jumps;
+        },
+
+        isGameOver: function () {
+            var self = this;
+            var coordsWithPegs = $.grep(coords, function (coord, i) { return coord.hasPeg; });
+                        
+            for (var i = 0; i < coordsWithPegs.length; i++) {
+                var coord = coordsWithPegs[i];
+                var jumps = self.getAvailableJumps(coord);
+                if (jumps.length > 0) {                    
+                    return false;
+                }
+            }
+            return true;
         }
     };
 });
@@ -231,12 +250,15 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         return;
     }
 
-    $scope.playing = false;
+    $scope.boardService = boardService;
+    $scope.playing = false;    
     $scope.paused = false;
+    $scope.isGameOver = false;
     $scope.startTime = undefined;
     $scope.prevTimeDiff = 0;
     $scope.ellapsedTime = undefined;
     $scope.timer = undefined;
+    $scope.pegCount = boardService.getCount();    
 
     // see http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
     function pad(n, width, z) {
@@ -291,6 +313,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         $scope.startTime = new Date();
         $scope.paused = false;
         $scope.playing = true;
+        $scope.isGameOver = false;
         
         // start the timer
         $scope.timer = setInterval(function() {
@@ -309,7 +332,7 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     // stop the game
     $scope.stop = function() {
         $scope.playing = false;
-        $scope.paused = false;
+        $scope.paused = false;        
         
         // stop the timer
         clearInterval($scope.timer);
@@ -317,6 +340,21 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         $scope.ellapsedTime = '00:00:00';        
         $scope.pegCount = 15;        
     };
+
+    // watch peg count    
+    $scope.$watch('boardService.getCount()', function (newVal) {        
+        $scope.pegCount = newVal;
+    });
+
+    // watch for game over
+    $scope.$watch('boardService.isGameOver()', function (newVal) {
+        if ($scope.playing) {
+            $scope.finalPegCount = $scope.pegCount;
+            $scope.finalEllapsedTime = $scope.ellapsedTime;
+            $scope.stop();
+            $scope.isGameOver = true;
+        }
+    });
 
     // place pegs on the board    
     boardService.placePegs();

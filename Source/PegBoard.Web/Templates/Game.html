@@ -1,5 +1,4 @@
-﻿<div id="board-container" class="center-block">
-      
+﻿<div id="board-container" class="center-block">      
     <div id="controls">
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group btn-group-lg">
@@ -14,13 +13,31 @@
         </div>
     </div>    
     <div id="board" class="center-block">
-        <div id="pause-screen" ng-show="playing && paused"><h2 class="text-center">Game<br />Paused</h2></div>
-        <div id="hud">
+        <div id="pause-screen" class="game-screen" ng-show="playing && paused"><h2 class="text-center">Game<br />Paused</h2></div>
+        <div id="game-over-screen" class="game-screen" style="display: none">
+            <div class="panel panel-default panel-primary level-message">
+              <div class="panel-heading">
+                <h3 class="panel-title"><span class="glyphicon glyphicon-ok-sign"></span> Congrats!!</h3>
+              </div>
+              <div class="panel-body">
+                <img src="https://cdn1.iconfinder.com/data/icons/DarkGlass_Reworked/128x128/apps/keditbookmarks.png" 
+                    width="64" class="pull-left" style="margin-right: 15px" />
+                <p>You have solved the board in {{finalEllapsedTime}} with {{finalPegCount}} pegs left! Well done!</p>
+                <p>Solving the board with <strong>fewer pegs</strong> or a <strong>shorter time</strong> will unlock <strong>more levels and features</strong> in the game.</p>
+              </div>
+              <div class="panel-footer">
+                  <button class="btn btn-success">Ready to try again?</button>
+                  <button class="btn btn-warning">No thanks, I'm done for now</button>
+              </div>
+            </div>
+        </div>
+        <div id="start-screen" class="start-screen" data-ng-show="!playing && !isGameOver"><h2 class="text-center">Click Start<br />to play!</h2></div>
+        <div id="hud" ng-show="playing && !paused">
             <p>Ellapsed Time: <span class="label label-primary" data-ng-init='ellapsedTime = "00:00:00"'>{{ellapsedTime}}</span></p>
             <p>Peg Count: <span class="label label-primary">{{pegCount}}</span></p>
         </div>    
-        <div id="coords"></div>     
-    </div>
+        <div id="coords" ng-show="playing && !paused"></div>     
+    </div>    
 </div>
 <div class="page-header">
     <h1>Instructions</h1>
