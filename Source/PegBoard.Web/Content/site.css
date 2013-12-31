@@ -50,30 +50,26 @@ body {
     padding-top: 50px; /* room for pin at top */
 }
 
-.game-screen {
-    /*background: #333;*/
-    color: #666;    
+.game-screen {    
+    position: absolute;
+    top: 0;
+    left: 0;  
     width: 100%;
     height: 100%;
+    z-index: 4;
 }
 
-.start-screen {
+.game-screen-white-transparent {
     background: #fff;
     opacity: 0.3;
     color: #000;
-    width: 100%;
-    height: 100%
 }
 
-.game-screen h2, .start-screen h2 {
+.game-screen h2 {
     font-size: 80px;
     line-height: 180px;
     margin: 0;
     padding: 0;
-}
-
-#pause-screen {
-    
 }
 
 #hud {
@@ -103,10 +99,13 @@ body {
     position: relative;
 }
 
+#coords {position: relative; z-index: 3; }
+
 .coord {
     position: absolute;
     width: 82px;
     height: 139px;
+    z-index: 3;
 }
 .coord.hasPeg {
     background: url(game/peg.png);

@@ -40,7 +40,7 @@ pegBoardApp.factory('userStore', function ($cookieStore) {
 
 pegBoardApp.factory('boardService', function ($rootScope) {    
     var coords = [
-        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: false },
+        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: true },
         { boardX: 1, boardY: 0, screenX: 223, screenY: 30, hasPeg: true },
         { boardX: 0, boardY: 1, screenX: 322, screenY: 32, hasPeg: true },
         { boardX: 2, boardY: 0, screenX: 165, screenY: 105, hasPeg: true },
@@ -222,6 +222,19 @@ pegBoardApp.factory('boardService', function ($rootScope) {
                 }
             }
             return true;
+        },
+
+        resetCoords: function () {
+            var self = this;
+
+            // set all to true first
+            for (var i = 0; i < coords.length; i++) {
+                coords[i].hasPeg = true;
+            }
+
+            // set random index as empty
+            var index = Math.floor((Math.random() * coords.length) + 1);
+            coords[index].hasPeg = false;
         }
     };
 });
@@ -309,12 +322,12 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     }        
 
     // start the game!
-    $scope.start = function () {
+    $scope.start = function () {        
         $scope.startTime = new Date();
         $scope.paused = false;
         $scope.playing = true;
         $scope.isGameOver = false;
-        
+
         // start the timer
         $scope.timer = setInterval(function() {
             $scope.ellapsedTime = getEllapsedTime();
@@ -341,6 +354,15 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         $scope.pegCount = 15;        
     };
 
+    // restart the game
+    $scope.restart = function() {
+        $scope.stop();
+
+        // reset the board
+        boardService.resetCoords();
+        boardService.placePegs();
+    };
+
     // watch peg count    
     $scope.$watch('boardService.getCount()', function (newVal) {        
         $scope.pegCount = newVal;
@@ -357,5 +379,6 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     });
 
     // place pegs on the board    
+    boardService.resetCoords();
     boardService.placePegs();
 });
