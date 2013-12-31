@@ -38,9 +38,119 @@ pegBoardApp.factory('userStore', function ($cookieStore) {
     };
 });
 
+pegBoardApp.factory('timerService', function ($rootScope) {
+    return {
+        // the ellapsed time
+        ellapsedTime: '00:00:00',
+
+        // ellapsed time from a previous timer
+        prevTimeDiff: 0,
+
+        // the time the time service was started
+        startTime: undefined,
+
+        // handle to the timer
+        timer: undefined,
+
+        // sets the start time for the service
+        start: function() {
+            var self = this;
+
+            // set the start time
+            self.startTime = new Date();
+
+            // start the timer
+            self.timer = setInterval(function () {                
+                self.ellapsedTime = self.getEllapsedTime();
+                $rootScope.$apply();
+            }, 1000);
+        },
+
+        // pause the timer
+        pause: function () {
+            var self = this;
+            
+            self.prevTimeDiff += new Date() - self.startTime;            
+            clearInterval(self.timer);
+        },
+
+        // stops the timer completely
+        stop: function () {
+            var self = this;
+
+            clearInterval(self.timer);
+            self.prevTimeDiff = 0;
+            self.ellapsedTime = '00:00:00';
+        },
+
+        // see http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
+        pad: function(n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        },
+
+        // parses the time diff into days, hours, minutes and seconds
+        parseTimeDiff: function(timeDiff) {
+            // strip the miliseconds
+            timeDiff /= 1000;
+
+            // get seconds
+            var seconds = Math.round(timeDiff % 60);
+
+            // remove seconds from the date
+            timeDiff = Math.floor(timeDiff / 60);
+
+            // get minutes
+            var minutes = Math.round(timeDiff % 60);
+
+            // remove minutes from the date
+            timeDiff = Math.floor(timeDiff / 60);
+
+            // get hours
+            var hours = Math.round(timeDiff % 24);
+
+            // remove hours from the date
+            timeDiff = Math.floor(timeDiff / 24);
+
+            // the rest of timeDiff is number of days
+            var days = timeDiff;
+
+            return {
+                days: days,
+                hours: hours,
+                minutes: minutes,
+                seconds: seconds
+            };
+        },
+
+        // see http://stackoverflow.com/questions/1210701/compute-elapsed-time
+        getEllapsedTime: function () {
+            var self = this;
+            var prevTimeDiff = self.prevTimeDiff || 0;
+
+            // later record end time
+            var endTime = new Date();
+
+            // time difference in ms
+            var timeDiff = (endTime - self.startTime) + prevTimeDiff;            
+
+            // parse the ellapsed time
+            var ellapsed = self.parseTimeDiff(timeDiff);
+
+            // format the time in a readable string
+            var timeStr = self.pad(ellapsed.hours, 2) + ":" + self.pad(ellapsed.minutes, 2) + ":" + self.pad(ellapsed.seconds, 2);
+            if (ellapsed.days > 0)
+                timeStr = ellapsed.days + " days, " + timeStr;
+
+            return timeStr;
+        }
+    };
+});
+
 pegBoardApp.factory('boardService', function ($rootScope) {    
     var coords = [
-        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: true },
+        { boardX: 0, boardY: 0, screenX: 273, screenY: -37, hasPeg: false },
         { boardX: 1, boardY: 0, screenX: 223, screenY: 30, hasPeg: true },
         { boardX: 0, boardY: 1, screenX: 322, screenY: 32, hasPeg: true },
         { boardX: 2, boardY: 0, screenX: 165, screenY: 105, hasPeg: true },
@@ -61,6 +171,8 @@ pegBoardApp.factory('boardService', function ($rootScope) {
     var ys = [  0, -1, -1, -1, 0, 1, 1,  1 ];    
 
     return {
+        defaultCount: 14,
+
         getPeg: function (x, y) {
             var pegs = $.grep(coords, function (coord, i) { return (coord.boardX == x && coord.boardY == y); });
             return pegs.pop();
@@ -255,7 +367,7 @@ pegBoardApp.controller('RegisterController', function ($scope, $location, userSt
     }
 });
 
-pegBoardApp.controller('GameController', function ($scope, $http, $location, userStore, boardService) {
+pegBoardApp.controller('GameController', function ($scope, $http, $location, userStore, timerService, boardService) {
     // make sure we've gone through the register step
     var user = userStore.get();
     if (!user.registered) {
@@ -263,95 +375,37 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
         return;
     }
 
+    $scope.timerService = timerService;
     $scope.boardService = boardService;
     $scope.playing = false;    
     $scope.paused = false;
-    $scope.isGameOver = false;
-    $scope.startTime = undefined;
-    $scope.prevTimeDiff = 0;
-    $scope.ellapsedTime = undefined;
-    $scope.timer = undefined;
-    $scope.pegCount = boardService.getCount();    
-
-    // see http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
-    function pad(n, width, z) {
-        z = z || '0';
-        n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    }
-
-    // see http://stackoverflow.com/questions/1210701/compute-elapsed-time
-    function getEllapsedTime() {
-        var prevTimeDiff = $scope.prevTimeDiff || 0;
-
-        // later record end time
-        var endTime = new Date();
-
-        // time difference in ms
-        var timeDiff = (endTime - $scope.startTime) + prevTimeDiff;
-
-        // strip the miliseconds
-        timeDiff /= 1000;
-
-        // get seconds
-        var seconds = Math.round(timeDiff % 60);
-
-        // remove seconds from the date
-        timeDiff = Math.floor(timeDiff / 60);
-
-        // get minutes
-        var minutes = Math.round(timeDiff % 60);
-
-        // remove minutes from the date
-        timeDiff = Math.floor(timeDiff / 60);
-
-        // get hours
-        var hours = Math.round(timeDiff % 24);
-
-        // remove hours from the date
-        timeDiff = Math.floor(timeDiff / 24);
-
-        // the rest of timeDiff is number of days
-        var days = timeDiff;
-
-        var timeStr = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
-        if (days > 0)
-            timeStr = days + " days, " + timeStr;
-
-        return timeStr;
-    }        
+    $scope.isGameOver = false;    
+    $scope.pegCount = boardService.defaultCount;    
 
     // start the game!
-    $scope.start = function () {        
-        $scope.startTime = new Date();
+    $scope.start = function () {                
         $scope.paused = false;
         $scope.playing = true;
         $scope.isGameOver = false;
-
+        
         // start the timer
-        $scope.timer = setInterval(function() {
-            $scope.ellapsedTime = getEllapsedTime();
-            $scope.$apply();
-        }, 1000);       
+        timerService.start();
     };
 
     // pause the game
-    $scope.pause = function () {
-        $scope.prevTimeDiff += new Date() - $scope.startTime;        
-        $scope.paused = true;
-        clearInterval($scope.timer);
+    $scope.pause = function () {        
+        $scope.paused = true;        
+        timerService.pause();
     };
 
     // stop the game
     $scope.stop = function() {
         $scope.playing = false;
         $scope.paused = false;        
-        
+        $scope.pegCount = boardService.defaultCount;
+
         // stop the timer
-        clearInterval($scope.timer);
-        $scope.prevTimeDiff = 0;
-        $scope.ellapsedTime = '00:00:00';        
-        $scope.pegCount = 15;        
+        timerService.stop();
     };
 
     // restart the game
@@ -366,6 +420,11 @@ pegBoardApp.controller('GameController', function ($scope, $http, $location, use
     // watch peg count    
     $scope.$watch('boardService.getCount()', function (newVal) {        
         $scope.pegCount = newVal;
+    });
+
+    // watch the time ticks
+    $scope.$watch('timerService.ellapsedTime', function (newVal) {        
+        $scope.ellapsedTime = newVal;
     });
 
     // watch for game over
