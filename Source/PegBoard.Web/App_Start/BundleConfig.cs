@@ -11,13 +11,17 @@ namespace PegBoard.Web.App_Start
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
+                        "~/Scripts/lib/jquery-{version}.js"));
             bundles.Add(new ScriptBundle("~/bundles/angular").Include(
-                        "~/Scripts/angular.js"));
+                        "~/Scripts/lib/angular.js"));
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                        "~/Scripts/bootstrap.js"));
+                        "~/Scripts/lib/bootstrap.js"));
             bundles.Add(new ScriptBundle("~/bundles/bootstrap-ui").Include(
-                        "~/Scripts/ui-bootstrap-{version}.js"));
+                        "~/Scripts/lib/ui-bootstrap-{version}.js"));
+            bundles.Add(new ScriptBundle("~/bundles/app").Include(
+                        "~/Scripts/app/app.js",
+                        "~/Scripts/app/services.js",
+                        "~/Scripts/app/controllers.js"));
 
             bundles.Add(new StyleBundle("~/Content/bootstrap/css").Include(
                         "~/Content/bootstrap*"));
