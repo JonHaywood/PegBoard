@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Text;
 using PegBoard.Web.Models;
 
-namespace PegBoard.Web.Services
+namespace PegBoard.Web.DataAccess
 {
     public interface IDbContext : IDisposable
     {

@@ -27,6 +27,8 @@ body {
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
+img { max-width: 100%; }
+
 #wrap > .container {
   padding: 60px 15px 0;
 }

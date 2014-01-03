@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
+﻿using System.Data.Entity;
 using PegBoard.Web.Models;
+using PegBoard.Web.Services;
 
-namespace PegBoard.Web.Services
+namespace PegBoard.Web.DataAccess
 {
     public class PegBoardContext : DbContext, IDbContext
     {
